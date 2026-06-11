@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stddef.h>
+#include <stdbool.h>
+
 typedef enum { UNKNOWN, GET, POST, HEAD } http_method;
 typedef struct {
 	http_method method;
@@ -10,7 +13,10 @@ typedef struct {
 typedef struct {
 	int status_code;
 	const char* content_type;
-	const char* body;
+	size_t content_length;
+	void* body;
+
+	bool owns_body;
 } http_response;
 
 int http_parse_request(char* req, http_request* request);

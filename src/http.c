@@ -42,16 +42,15 @@ int http_parse_request(char *raw, http_request *request) {
 char *http_generate_response(const http_response *response) {
 	const char *reason = response->status_code == 200 ? "OK" : response->body;
 
-	size_t capacity = sizeof(char) * 512 + strlen(response->body);
+	size_t capacity = sizeof(char) * 512;
 	char *response_str = malloc(capacity + 1);
 	snprintf(response_str, capacity + 1,
 	         "HTTP/1.0 %d %s\r\n"
 	         "Content-Type: %s\r\n"
 	         "Content-Length: %zu\r\n"
-	         "\r\n"
-	         "%s",
+	         "\r\n",
 	         response->status_code, reason, response->content_type,
-	         strlen(response->body), response->body);
+	         response->content_length);
 
 	return response_str;
 }

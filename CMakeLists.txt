@@ -8,7 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 file(GLOB_RECURSE SOURCES src/*.c)
 
-add_executable(interpreter ${SOURCES})
+add_executable(http-c ${SOURCES})
 
-target_include_directories(interpreter PRIVATE include)
+target_include_directories(http-c PRIVATE include)
 

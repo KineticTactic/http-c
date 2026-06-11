@@ -1,7 +1,9 @@
 #include "server.h"
+#include "fs.h"
 #include "http.h"
 
 #include <arpa/inet.h>
+#include <limits.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,7 +37,7 @@ void server_free_addr_info(struct addrinfo *servinfo) {
 	freeaddrinfo(servinfo);
 }
 
-int server_create_and_bind_socket(struct addrinfo *servinfo) {
+void server_create_and_bind_socket(struct addrinfo *servinfo, server *server) {
 	// loop through all the results and bind to the first one which we can
 	int sockfd;
 	struct addrinfo *p;
@@ -71,12 +73,12 @@ int server_create_and_bind_socket(struct addrinfo *servinfo) {
 		exit(1);
 	}
 
-	return sockfd;
+	server->sockfd = sockfd;
 }
 
-void server_listen(int sockfd, int backlog) {
+void server_listen(server *server, int backlog) {
 	// Start listening. Accept at most BACKLOG connections on this socket.
-	if (listen(sockfd, backlog) == -1) {
+	if (listen(server->sockfd, backlog) == -1) {
 		perror("listen");
 		exit(1);
 	}
@@ -90,25 +92,44 @@ void *get_in_addr(struct sockaddr *sa) {
 	return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
-int server_handle_request(const http_request *req, http_response *res) {
+int server_handle_request(const http_request *req, http_response *res,
+                          server *server) {
 	if (req->method != GET) {
 		res->status_code = 501;
 		res->body = "Not Implemented";
 		res->content_type = "text/plain";
+		res->content_length = strlen(res->body);
+		res->owns_body = false;
+		return 0;
+	}
+
+	file_content content;
+	char fullpath[PATH_MAX];
+	snprintf(fullpath, PATH_MAX, "%s%s", server->rootdir, req->path);
+
+	if (fs_getpath(fullpath, &content) != 0) {
+		res->status_code = 404;
+		res->body = "Not Found";
+		res->content_type = "text/plain";
+		res->content_length = strlen(res->body);
+		res->owns_body = false;
 		return 0;
 	}
 
 	res->status_code = 200;
-	res->body = "Welcome to kinetic server v1.0! Have a seat.";
-	res->content_type = "text/plain";
+	res->body = content.content;
+	res->content_type = content.content_type;
+	res->content_length = content.content_length;
+	res->owns_body = true;
 
 	return 0;
 }
 
-void server_accept_connection(int sockfd) {
+void server_accept_connection(server *server) {
 	struct sockaddr_storage their_addr;
 	socklen_t addr_size = sizeof their_addr;
-	int new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &addr_size);
+	int new_fd =
+	    accept(server->sockfd, (struct sockaddr *)&their_addr, &addr_size);
 
 	if (new_fd == -1) {
 		perror("accept");
@@ -121,7 +142,7 @@ void server_accept_connection(int sockfd) {
 	printf("server: got connection from %s\n", s);
 
 	if (!fork()) {
-		close(sockfd);
+		close(server->sockfd);
 
 		// Receive message
 		char request_str[1024];
@@ -136,8 +157,10 @@ void server_accept_connection(int sockfd) {
 			res.status_code = 400;
 			res.content_type = "text/plain";
 			res.body = "Bad Request";
+			res.content_length = strlen(res.body);
+			res.owns_body = false;
 		} else {
-			server_handle_request(&req, &res);
+			server_handle_request(&req, &res, server);
 		}
 
 		char *response_str = http_generate_response(&res);
@@ -147,7 +170,22 @@ void server_accept_connection(int sockfd) {
 		int len = strlen(response_str);
 		int bytes_sent = send(new_fd, response_str, len, 0);
 
+		size_t total = 0;
+		while (total < res.content_length) {
+			ssize_t n = send(new_fd, (char *)res.body + total,
+			                 res.content_length - total, 0);
+
+			if (n <= 0)
+				break;
+
+			total += n;
+		}
+
 		free(response_str);
+
+		if (res.owns_body) {
+			free(res.body);
+		}
 
 		if (bytes_sent == -1)
 			perror("send");
