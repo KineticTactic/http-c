@@ -8,12 +8,14 @@
 int fs_getpath(const char *path, file_content *ret) {
 	struct stat st;
 	if (stat(path, &st) == -1) {
+		perror("stat");
 		return -1;
 	}
 	if (S_ISDIR(st.st_mode)) {
 		char index_path[PATH_MAX];
 
 		snprintf(index_path, sizeof(index_path), "%s/index.html", path);
+		printf("INDEX PATH: %s\n", index_path);
 
 		if (stat(index_path, &st) != 0 || !S_ISREG(st.st_mode))
 			return -1;

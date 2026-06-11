@@ -1,5 +1,7 @@
 #include "http.h"
 
+#include "uri.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,13 +31,22 @@ int http_parse_request(char *raw, http_request *request) {
 		return -1;
 	}
 
-	printf("Method: %s\n", method);
-	printf("Path: %s\n", path);
-	printf("Version: %s\n", version);
+	char* query = strchr(path, '?');
+	if (query) {
+		*query = '\0';
+		query++;
+	}
 
 	request->method = http_parse_method(method);
-	request->path = path;
+	uri_decode(path);
+	remove_dot_segments(path, request->path);
 	request->version = version;
+
+	printf("Method: %s\n", method);
+	printf("Path: %s\n", request->path);
+	printf("Query: %s\n", query);
+	printf("Version: %s\n", version);
+
 	return 0;
 }
 

@@ -2,11 +2,12 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <limits.h>
 
 typedef enum { UNKNOWN, GET, POST, HEAD } http_method;
 typedef struct {
 	http_method method;
-	char* path;
+	char path[PATH_MAX];
 	char* version;
 } http_request;
 

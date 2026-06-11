@@ -2,6 +2,8 @@
 #include <dirent.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
+#include <stdlib.h>
 
 #define PORT "3490"
 #define BACKLOG 10
@@ -26,8 +28,12 @@ int main(int argc, char *argv[]) {
 
 	struct addrinfo *servinfo = server_get_addr_info(PORT);
 
+	char resolved_path[PATH_MAX];
+	realpath(argv[1], resolved_path);
+	printf("ROOT DIR: %s\n", resolved_path);
+
 	server server = {
-		.rootdir = argv[1]
+		.rootdir = resolved_path
 	};
 	server_create_and_bind_socket(servinfo, &server);
 	server_free_addr_info(servinfo);
