@@ -51,7 +51,6 @@ RevrStatus revr_static(RevrApp *app, const char *path, const char *directory) {
 	return REVR_OK;
 }
 
-
 // TODO: Think about string ownership
 RevrStatus revr_send_text(RevrResponse *res, int status, const char *text) {
 	res->status_code = status;
@@ -59,7 +58,7 @@ RevrStatus revr_send_text(RevrResponse *res, int status, const char *text) {
 	res->owns_body = true;
 	res->content_length = strlen(text);
 	res->content_type = "text/plain";
-    return REVR_OK;
+	return REVR_OK;
 }
 
 RevrStatus revr_send_html(RevrResponse *res, int status, const char *html) {
@@ -68,80 +67,45 @@ RevrStatus revr_send_html(RevrResponse *res, int status, const char *html) {
 	res->owns_body = true;
 	res->content_length = strlen(html);
 	res->content_type = "text/html";
-    return REVR_OK;
+	return REVR_OK;
 }
 
 RevrStatus revr_send_file(RevrResponse *res, int status, const char *path) {
-    char fullpath[PATH_MAX];
+	char fullpath[PATH_MAX];
 
-    if (realpath(path, fullpath) == NULL) {
-        return REVR_ERR_NOT_FOUND;
-    }
+	if (realpath(path, fullpath) == NULL) {
+		return REVR_ERR_NOT_FOUND;
+	}
 
-    file_content content;
+	file_content content;
 
-    if (fs_getpath(fullpath, &content) != 0) {
-        return REVR_ERR_NOT_FOUND;
-    }
+	if (fs_getpath(fullpath, &content) != 0) {
+		return REVR_ERR_NOT_FOUND;
+	}
 
-    res->status_code = status;
-    res->content_type = content.content_type;
-    res->content_length = content.content_length;
-    res->body = content.content;
-    res->owns_body = true;
+	res->status_code = status;
+	res->content_type = content.content_type;
+	res->content_length = content.content_length;
+	res->body = content.content;
+	res->owns_body = true;
 
-    return REVR_OK;
+	return REVR_OK;
 }
 
-RevrStatus revr_send_ok(RevrResponse *res) {
-	http_ok(res);
-	return REVR_OK;
-}
-RevrStatus revr_send_created(RevrResponse *res) {
-	http_created(res);
-	return REVR_OK;
-}
-RevrStatus revr_send_no_content(RevrResponse *res) {
-	http_no_content(res);
-	return REVR_OK;
-}
-RevrStatus revr_send_bad_request(RevrResponse *res) {
-	http_bad_request(res);
-	return REVR_OK;
-}
-RevrStatus revr_send_unauthorized(RevrResponse *res) {
-	http_unauthorized(res);
-	return REVR_OK;
-}
-RevrStatus revr_send_forbidden(RevrResponse *res) {
-	http_forbidden(res);
-	return REVR_OK;
-}
-RevrStatus revr_send_not_found(RevrResponse *res) {
-	http_not_found(res);
-	return REVR_OK;
-}
-RevrStatus revr_send_method_not_allowed(RevrResponse *res) {
+void revr_send_ok(RevrResponse *res) { http_ok(res); }
+void revr_send_created(RevrResponse *res) { http_created(res); }
+void revr_send_no_content(RevrResponse *res) { http_no_content(res); }
+void revr_send_bad_request(RevrResponse *res) { http_bad_request(res); }
+void revr_send_unauthorized(RevrResponse *res) { http_unauthorized(res); }
+void revr_send_forbidden(RevrResponse *res) { http_forbidden(res); }
+void revr_send_not_found(RevrResponse *res) { http_not_found(res); }
+void revr_send_method_not_allowed(RevrResponse *res) {
 	http_method_not_allowed(res);
-	return REVR_OK;
 }
-RevrStatus revr_send_conflict(RevrResponse *res) {
-	http_conflict(res);
-	return REVR_OK;
-}
-RevrStatus revr_send_internal_error(RevrResponse *res) {
-	http_internal_error(res);
-	return REVR_OK;
-}
-RevrStatus revr_send_not_implemented(RevrResponse *res) {
-	http_not_implemented(res);
-	return REVR_OK;
-}
-RevrStatus revr_send_bad_gateway(RevrResponse *res) {
-	http_bad_gateway(res);
-	return REVR_OK;
-}
-RevrStatus revr_send_service_unavailable(RevrResponse *res) {
+void revr_send_conflict(RevrResponse *res) { http_conflict(res); }
+void revr_send_internal_error(RevrResponse *res) { http_internal_error(res); }
+void revr_send_not_implemented(RevrResponse *res) { http_not_implemented(res); }
+void revr_send_bad_gateway(RevrResponse *res) { http_bad_gateway(res); }
+void revr_send_service_unavailable(RevrResponse *res) {
 	http_service_unavailable(res);
-	return REVR_OK;
 }
