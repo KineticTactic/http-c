@@ -74,5 +74,5 @@ void route_dispatch(RevrApp *app, RevrRequest *req, RevrResponse *res) {
 		}
 	}
 
-	return http_404(res);
+	return http_not_found(res);
 }

@@ -62,3 +62,20 @@ target_link_libraries(my-app PRIVATE revr::revr)
 ```sh
 cmake --install build --prefix /usr/local
 ```
+
+## TODO
+
+- [x] GET handler
+- [x] Send files
+- [x] Static mounting directories
+- [x] URI decoding
+- [x] Path normalization
+- [x] Standard status code helpers
+- [ ] Middleware
+- [ ] Route parameters
+- [ ] Query parsing
+- [ ] Request headers
+- [ ] POST body support
+- [ ] Keep-Alive
+- [ ] Thread pool
+- [ ] WebSockets

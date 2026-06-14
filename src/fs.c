@@ -95,5 +95,8 @@ const char *fs_content_type(const char *path) {
 	if (strcmp(ext, ".txt") == 0)
 		return "text/plain";
 
+	if (strcmp(ext, ".pdf") == 0)
+		return "application/pdf";
+
 	return "application/octet-stream";
 }

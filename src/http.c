@@ -78,12 +78,82 @@ void http_send_file(RevrResponse *res, file_content *content) {
 	res->owns_body = true;
 }
 
-void http_404(RevrResponse *res) {
+void http_ok(RevrResponse *res) {
+	res->status_code = 200;
+	res->body = "OK";
+	res->owns_body = false;
+	res->content_type = "text/plain";
+	res->content_length = 2;
+}
+void http_created(RevrResponse *res) {
+	res->status_code = 201;
+	res->body = "Created";
+	res->owns_body = false;
+	res->content_type = "text/plain";
+	res->content_length = 7;
+}
+void http_no_content(RevrResponse *res) {
+	res->status_code = 204;
+	res->body = "";
+	res->owns_body = false;
+	res->content_type = "text/plain";
+	res->content_length = 0;
+}
+void http_bad_request(RevrResponse *res) {
+	res->status_code = 400;
+	res->body = "Bad Request";
+	res->owns_body = false;
+	res->content_type = "text/plain";
+	res->content_length = 11;
+}
+void http_unauthorized(RevrResponse *res) {
+	res->status_code = 401;
+	res->body = "Unauthorized";
+	res->owns_body = false;
+	res->content_type = "text/plain";
+	res->content_length = 12;
+}
+void http_forbidden(RevrResponse *res) {
+	res->status_code = 403;
+	res->body = "Forbidden";
+	res->owns_body = false;
+	res->content_type = "text/plain";
+	res->content_length = 9;
+}
+void http_not_found(RevrResponse *res) {
 	res->status_code = 404;
 	res->body = "Not Found";
 	res->owns_body = false;
 	res->content_type = "text/plain";
-	res->content_length = strlen(res->body);
+	res->content_length = 9;
+}
+void http_conflict(RevrResponse *res) {
+	res->status_code = 409;
+	res->body = "Conflict";
+	res->owns_body = false;
+	res->content_type = "text/plain";
+	res->content_length = 8;
+}
+void http_internal_error(RevrResponse *res) {
+	res->status_code = 500;
+	res->body = "Internal Server Error";
+	res->owns_body = false;
+	res->content_type = "text/plain";
+	res->content_length = 22;
+}
+void http_bad_gateway(RevrResponse *res) {
+	res->status_code = 502;
+	res->body = "Bad Gateway";
+	res->owns_body = false;
+	res->content_type = "text/plain";
+	res->content_length = 11;
+}
+void http_service_unavailable(RevrResponse *res) {
+	res->status_code = 503;
+	res->body = "Service Unavailable";
+	res->owns_body = false;
+	res->content_type = "text/plain";
+	res->content_length = 20;
 }
 void http_method_not_allowed(RevrResponse *res) {
 	res->status_code = 405;
